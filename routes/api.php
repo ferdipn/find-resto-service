@@ -23,6 +23,10 @@ Route::get('/healthz', function () {
     return 1;
 });
 
+Route::controller(RestaurantController::class)->group(function(){
+    Route::get('/open-data', 'index');
+});
+
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::group(['middleware' => 'auth:sanctum'], function() {

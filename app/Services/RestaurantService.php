@@ -20,14 +20,18 @@ class RestaurantService
             $query->whereRaw("LOWER(name) LIKE ?", "%".trim(strtolower($request->search))."%");
         }
 
-        if ($request->datetime) {
-            $selectedDate = Carbon::parse($request->datetime)->format('N');
-            $formatTime = Carbon::parse($request->datetime)->format('H:i:s');
-            $query->whereHas('operationHours', function($q) use ($selectedDate, $selectedtime) {
-                $q->where('day', $selectedDate)
-                    ->whereTime('open', '<=', $selectedtime)
-                    ->whereTime('close', '>=', $selectedtime)
-                    ->where('is_open', true);
+        if ($request->day || $request->time) {
+            $query->whereHas('operationHours', function($q) use ($request) {
+                if ($request->day) {
+                    $q->whereIn('day', $request->day);
+                }
+        
+                if ($request->time) {
+                    $q->whereTime('open', '<=', $request->time)
+                      ->whereTime('close', '>=', $request->time);
+                }
+        
+                $q->where('is_open', true);
             });
         }
 
